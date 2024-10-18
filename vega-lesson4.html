@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite-api@5.6.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-tooltip"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@5"></script>
+    <title>Document</title>
+</head>
+<body>
+  <div id="view"></div>
+  <div id="view2"></div>
+  <div id="view3"></div>
+  <div id="view4"></div>
+  <script>
+  // setup API options
+  const options = {
+      config: {
+          // Vega-Lite default configuration
+        },
+        init: (view) => {
+          // initialize tooltip handler
+          view.tooltip(new vegaTooltip.Handler().call);
+        },
+        view: {
+          // view constructor options
+          // remove the loader if you don't want to default to vega-datasets!
+          renderer: "canvas",
+        },
+      };
+
+      // register vega and vega-lite with the API
+      vl.register(vega, vegaLite, options);
+
+    // Now you can use the API
+
+    // Linking to Vega dataset
+
+    const dataSet = "https://raw.githubusercontent.com/vega/vega-datasets/refs/heads/main/data/burtin.json";
+    
+    // The Vega-Lite specification
+
+    vl.markCircle({size:80})
+        .data(dataSet)
+        .transform(
+            vl.calculate('split(datum.Bacteria, " ")[0]').as('Genus'))
+        .encode(
+            vl.x().fieldQ('Neomycin').sort('descending')
+                .scale({type: 'log', domain: [0.001,1000]})
+                .axis({tickCount: 5})
+                .title('Neomycin MIC (μg/ml, reverse log scale)'),
+            vl.y().fieldQ('Penicillin').sort('descending')
+                .scale({type: 'log', domain: [0.001,1000]})
+                .axis({tickCount: 5})
+                .title('Penicillin MIC (μg/ml, reverse log scale)'),
+            vl.color().fieldO('Genus').scale({scheme: 'tableau20'})
+            )
+        .width(400)
+        .height(400)
+        .render()
+        .then(viewElement => {
+            document.getElementById("view").appendChild(viewElement )
+        });
+
+
+    </script>
+</body>
+</html>
